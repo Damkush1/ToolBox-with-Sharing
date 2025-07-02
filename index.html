@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programmatic AM ToolBox</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #ebeff3; /* Light Grey from brand kit */
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        .pro-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+        .pro-scroll::-webkit-scrollbar-track { background: #e5e7eb; border-radius: 10px; }
+        .pro-scroll::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 10px; }
+        .pro-scroll::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+        
+        .output-container { min-height: 250px; }
+
+        .btn-glow {
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-glow:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px var(--tw-shadow-color);
+        }
+        
+        /* Taboola Brand Colors */
+        .bg-taboola-blue { background-color: #0056f0; }
+        .hover\:bg-taboola-blue-dark:hover { background-color: #0045d1; }
+        .text-taboola-blue { color: #0056f0; }
+        
+        .bg-taboola-turquoise { background-color: #00f0d2; }
+        .hover\:bg-taboola-turquoise-dark:hover { background-color: #00d1b3; }
+        .text-taboola-turquoise { color: #00f0d2; }
+        
+        .bg-taboola-purple { background-color: #bb61ff; }
+        .hover\:bg-taboola-purple-dark:hover { background-color: #a949f0; }
+        .text-taboola-purple { color: #bb61ff; }
+
+        .bg-taboola-dark-blue { background-color: #002852; }
+        .hover\:bg-taboola-dark-blue-dark:hover { background-color: #001f3f; }
+        .text-taboola-dark-blue { color: #002852; }
+        
+        .text-taboola-yellow { color: #f2ff40; } 
+        .bg-taboola-yellow-light { background-color: #fefce8; }
+        .text-taboola-yellow-dark { color: #a16207; }
+
+        /* Syntax Highlighting */
+        .json-key { color: #002852; font-weight: 600; }
+        .json-string { color: #0056f0; }
+        .json-number { color: #008d7a; }
+        .json-boolean { color: #bb61ff; }
+        .json-null { color: #6b7280; }
+
+        /* Ads.txt Crawler Styles */
+        .loader { border-top-color: #0056f0; -webkit-animation: spin 1s linear infinite; animation: spin 1s linear infinite; }
+        @-webkit-keyframes spin { 0% { -webkit-transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); } }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        #adsTxtOutput .line { display: block; padding: 2px 0; border-radius: 4px; }
+        #adsTxtOutput .line-number { display: inline-block; width: 40px; text-align: right; margin-right: 15px; color: #9ca3af; font-size: 0.8em; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+        #adsTxtOutput .line-comment { color: #9ca3af; }
+        #adsTxtOutput .line-variable { color: #7bcdff; font-weight: 500;}
+        #adsTxtOutput .line-valid { color: #e5e7eb; } 
+        #adsTxtOutput .line-error { color: #f87171; background-color: rgba(153, 27, 27, 0.2); font-weight: 500;}
+        #adsTxtOutput .line-error .error-icon { margin-left: 10px; }
+        #adsTxtOutput .line-taboola-direct .line-valid { color: #bb61ff; font-weight: 500; }
+        #adsTxtOutput .line-taboola-reseller .line-valid { color: #f2ff40; font-weight: 500; }
+        #adsTxtOutput .line-taboola-direct .line-number, #adsTxtOutput .line-taboola-reseller .line-number { color: #9ca3af; font-weight: 400; }
+        
+        .current-line-highlight { outline: 2px solid #f2ff40; animation: highlight-current-line 0.8s ease-out; }
+        @keyframes highlight-current-line { from { outline-color: #fde68a; } to { outline-color: #f2c740; } }
+        
+        .status-included { color: #16a34a; font-weight: 600; }
+        .status-missing { color: #dc2626; font-weight: 600; }
+
+        /* Navigation Styling */
+        .nav-link {
+            transition: all 0.2s ease-in-out;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link.active {
+            border-bottom-color: #0056f0;
+            color: #002852;
+            font-weight: 600;
+        }
+        .nav-link:hover {
+            color: #002852;
+        }
+        .section-separator {
+            border-top: 2px dashed #d1d5db;
+            margin: 4rem 0;
+        }
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, #002852, #0056f0);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-shape {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.05);
+            animation: float 6s ease-in-out infinite;
+        }
+        .hero-shape.one { width: 200px; height: 200px; top: -50px; left: -50px; animation-duration: 7s; }
+        .hero-shape.two { width: 150px; height: 150px; bottom: -75px; right: -75px; animation-duration: 8s; animation-delay: 2s; }
+        .hero-shape.three { width: 50px; height: 50px; top: 20%; right: 10%; animation-duration: 5s; }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+    </style>
+</head>
+<body class="text-gray-900">
+
+    <div class="hero-section text-white">
+        <div class="hero-shape one"></div>
+        <div class="hero-shape two"></div>
+        <div class="hero-shape three"></div>
+        <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8 text-center relative z-10">
+            <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">Programmatic AM ToolBox</h1>
+            <p class="mt-4 max-w-3xl mx-auto text-lg sm:text-xl text-gray-300">100% Fully Created With AI, Built by Account Managers for Account Managers!</p>
+        </div>
+    </div>
+
+    <header id="main-header" class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-24">
+                <div class="flex items-center">
+                    <a href="#" id="logo-link" class="flex-shrink-0">
+                        <img src="https://i.ibb.co/tMqkJVYX/Chat-GPT-Image-Jun-25-2025-01-32-56-PM.png" alt="Taboola Programmatic Logo" class="h-24 w-auto">
+                    </a>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="#json-bourne" class="nav-link text-gray-500 px-3 py-2 rounded-md text-sm font-medium">JSON Bourne</a>
+                            <a href="#ads-txt-crawler" class="nav-link text-gray-500 px-3 py-2 rounded-md text-sm font-medium">Ads.txt Crawler</a>
+                            <a href="#learning-space" class="nav-link text-gray-500 px-3 py-2 rounded-md text-sm font-medium">Learning Space</a>
+                            <a href="#coming-soon" class="nav-link text-gray-500 px-3 py-2 rounded-md text-sm font-medium">Coming Soon</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- JSON Bourne Section -->
+        <section id="json-bourne" class="tool-section">
+            <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+                <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-10">
+                    <div class="text-center">
+                        <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">JSON Bourne</h1>
+                        <p class="mt-3 text-lg text-gray-600 max-w-2xl mx-auto">Your smart assistant for handling OpenRTB data. Format JSON, render creatives, or extract images with ease.</p>
+                    </div>
+                    <div id="json-bourne-options" class="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                         <button onclick="selectJsonOption('format')" style="--tw-shadow-color: rgba(0, 86, 240, 0.4);" class="btn-glow bg-taboola-blue hover:bg-taboola-blue-dark text-white font-semibold py-4 px-5 rounded-xl flex flex-col items-center justify-center text-center shadow-lg">
+                            <svg class="w-10 h-10 mb-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"></path></svg>
+                            <span>Format JSON</span>
+                        </button>
+                        <button onclick="selectJsonOption('extract_image')" style="--tw-shadow-color: rgba(0, 240, 210, 0.4);" class="btn-glow bg-taboola-turquoise hover:bg-taboola-turquoise-dark text-gray-900 font-semibold py-4 px-5 rounded-xl flex flex-col items-center justify-center text-center shadow-lg">
+                            <svg class="w-10 h-10 mb-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"></path></svg>
+                            <span>Native - Extract Image</span>
+                        </button>
+                        <button onclick="selectJsonOption('render_ad')" style="--tw-shadow-color: rgba(187, 97, 255, 0.4);" class="btn-glow bg-taboola-purple hover:bg-taboola-purple-dark text-white font-semibold py-4 px-5 rounded-xl flex flex-col items-center justify-center text-center shadow-lg">
+                           <svg class="w-10 h-10 mb-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"></path></svg>
+                            <span>Display - Extract Image</span>
+                        </button>
+                        <button onclick="selectJsonOption('play_video')" style="--tw-shadow-color: rgba(0, 40, 82, 0.4);" class="btn-glow bg-taboola-dark-blue hover:bg-taboola-dark-blue-dark text-white font-semibold py-4 px-5 rounded-xl flex flex-col items-center justify-center text-center shadow-lg">
+                           <svg class="w-10 h-10 mb-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 3H6c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H6V5h12v14zM8 15h2v-2H8v2zm0-4h2V9H8v2zm0-4h2V5H8v2zm10 8h-6v-2h6v2zm0-4h-6v-2h6v2zm0-4h-6V5h6v2z"></path></svg>
+                            <span>Video - Play Video Ad</span>
+                        </button>
+                    </div>
+                    <div id="json-input-section" class="hidden mt-6">
+                        <h2 id="json-input-prompt" class="text-2xl font-semibold text-gray-800 text-center"></h2>
+                        <textarea id="json-input" class="pro-scroll mt-6 w-full h-72 p-4 border-2 border-gray-200 rounded-xl bg-gray-50 focus:ring-2 focus:ring-taboola-blue focus:border-taboola-blue transition duration-200 resize-y" style="color: #002852;" placeholder="Paste your raw data here..."></textarea>
+                    </div>
+                    <div id="json-output-section" class="hidden mt-8">
+                         <h2 class="text-2xl font-bold text-gray-900 border-b-2 border-gray-200 pb-3 mb-6">Result</h2>
+                         <div id="json-output" class="output-container bg-gray-100 p-4 rounded-xl"></div>
+                         <div id="json-actions" class="mt-8 text-center">
+                            <button onclick="resetJsonBourne()" class="bg-gray-700 text-white font-semibold py-2 px-8 rounded-lg hover:bg-gray-800 transition duration-300">Start Over</button>
+                            <button onclick="shareResult()" class="bg-taboola-blue text-white font-semibold py-2 px-8 rounded-lg hover:bg-taboola-blue-dark transition duration-300 ml-4">
+                                <i class="fas fa-share-alt mr-2"></i>Share
+                            </button>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="section-separator"></div></div>
+
+        <!-- Advanced Ads.txt Crawler Section -->
+        <section id="ads-txt-crawler" class="tool-section">
+             <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+                <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-10">
+                    <div class="text-center mb-6">
+                        <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Advanced Ads.txt Crawler</h1>
+                        <p class="text-gray-500 mt-2">Fetch, validate, and analyze any ads.txt or app-ads.txt file.</p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-3 mb-4">
+                        <input type="text" id="websiteUrl" placeholder="e.g., example.com" class="flex-grow w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-taboola-blue focus:border-transparent transition">
+                        <button id="fetchButton" class="w-full sm:w-auto bg-white text-taboola-blue border-2 border-taboola-blue font-semibold px-6 py-3 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-taboola-blue focus:ring-opacity-50 transition-transform transform hover:scale-105 active:scale-100 flex items-center justify-center">
+                            <span id="button-text">Validate</span>
+                            <img id="loader" src="https://i.ibb.co/cXyfzrHz/lgo-taboola-logo-2024-dark-blue-smiley.jpg" alt="Loading..." class="h-6 w-6 ml-3 hidden animate-spin">
+                        </button>
+                    </div>
+                    <div class="flex items-center justify-center mb-6">
+                        <label for="appAdsToggle" class="flex items-center cursor-pointer">
+                            <input type="checkbox" id="appAdsToggle" class="form-checkbox h-5 w-5 text-taboola-blue rounded focus:ring-taboola-blue">
+                            <span class="ml-2 text-gray-700">Check for app-ads.txt</span>
+                        </label>
+                    </div>
+                    <div id="summaryContainer" class="hidden grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-center">
+                        <div id="directCard" class="bg-purple-50 p-4 rounded-lg hover:bg-purple-100 transition"><div class="flex items-center justify-center gap-x-3 sm:gap-x-4"><div><p class="text-2xl font-bold text-taboola-purple" id="taboolaDirectCount">0</p><p class="text-sm text-gray-500">Taboola DIRECT</p></div><div id="directNav" class="hidden flex-col items-center"><button id="prevDirectBtn" title="Previous" class="text-taboola-purple hover:bg-purple-200 rounded-full w-6 h-6 flex items-center justify-center transition">&uarr;</button><span id="directNavCounter" class="text-xs text-purple-700 font-semibold my-0.5">0/0</span><button id="nextDirectBtn" title="Next" class="text-taboola-purple hover:bg-purple-200 rounded-full w-6 h-6 flex items-center justify-center transition">&darr;</button></div></div></div>
+                        <div id="resellerCard" class="bg-taboola-yellow-light p-4 rounded-lg hover:bg-yellow-100 transition"><div class="flex items-center justify-center gap-x-3 sm:gap-x-4"><div><p class="text-2xl font-bold text-taboola-yellow-dark" id="taboolaResellerCount">0</p><p class="text-sm text-gray-500">Taboola RESELLER</p></div><div id="resellerNav" class="hidden flex-col items-center"><button id="prevResellerBtn" title="Previous" class="text-taboola-yellow-dark hover:bg-yellow-200 rounded-full w-6 h-6 flex items-center justify-center transition">&uarr;</button><span id="resellerNavCounter" class="text-xs text-yellow-800 font-semibold my-0.5">0/0</span><button id="nextResellerBtn" title="Next" class="text-taboola-yellow-dark hover:bg-yellow-200 rounded-full w-6 h-6 flex items-center justify-center transition">&darr;</button></div></div></div>
+                        <div class="bg-gray-50 p-4 rounded-lg"><p class="text-2xl font-bold text-gray-600" id="uniqueSellers">0</p><p class="text-sm text-gray-500">Unique Sellers</p></div>
+                        <div id="errorsCard" class="bg-red-50 p-4 rounded-lg hover:bg-red-100 transition"><div class="flex items-center justify-center gap-x-3 sm:gap-x-4"><div><p class="text-2xl font-bold text-red-600" id="errorCount">0</p><p class="text-sm text-gray-500" id="errorLabel">Errors</p></div><div id="errorNav" class="hidden flex-col items-center"><button id="prevErrorBtn" title="Previous" class="text-red-600 hover:bg-red-200 rounded-full w-6 h-6 flex items-center justify-center transition">&uarr;</button><span id="errorNavCounter" class="text-xs text-red-700 font-semibold my-0.5">0/0</span><button id="nextErrorBtn" title="Next" class="text-red-600 hover:bg-red-200 rounded-full w-6 h-6 flex items-center justify-center transition">&darr;</button></div></div></div>
+                    </div>
+                    <div id="resultContainer" class="hidden">
+                         <div class="flex justify-between items-center mb-4">
+                            <h2 id="resultTitle" class="text-xl font-bold text-gray-800"></h2>
+                            <div>
+                                <button id="copyButton" class="text-gray-500 hover:text-taboola-blue mr-4" title="Copy raw text"><i class="fas fa-copy"></i> Copy</button>
+                                <a id="sourceLink" href="#" target="_blank" class="text-taboola-blue hover:underline text-sm font-medium">View Source <i class="fas fa-external-link-alt"></i></a>
+                            </div>
+                        </div>
+                        <pre id="adsTxtOutput" class="bg-taboola-dark-blue text-white p-4 rounded-lg text-sm overflow-auto whitespace-pre-wrap max-h-[500px]"></pre>
+                    </div>
+                    <div id="resellerStatusContainer" class="hidden mt-8">
+                         <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-2xl font-bold text-gray-800">RESELLER Status</h3>
+                            <button id="downloadCsvBtn" class="bg-green-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition text-sm flex items-center"><i class="fas fa-download mr-2"></i>Download CSV</button>
+                        </div>
+                        <div class="overflow-x-auto bg-white rounded-lg shadow">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Required RESELLER Line</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="resellerStatusTableBody" class="bg-white divide-y divide-gray-200"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="errorContainer" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg" role="alert">
+                        <strong class="font-bold">Error:</strong>
+                        <span id="errorMessage" class="block sm:inline"></span>
+                    </div>
+                    <div id="copyNotification" class="hidden fixed bottom-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg">Copied to clipboard!</div>
+                </div>
+            </div>
+        </section>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="section-separator"></div></div>
+        
+        <!-- Learning Space Section -->
+        <section id="learning-space" class="tool-section">
+            <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+                <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-10">
+                    <div class="text-center">
+                        <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Learning Space</h1>
+                        <p class="mt-3 text-lg text-gray-600 max-w-2xl mx-auto">Explore and Master Selected Topics in Ad-Tech by Engaging with NotebookLM Pre-generated Spaces.</p>
+                    </div>
+                    <div class="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 grid-auto-rows-fr">
+                        <a href="https://notebooklm.google.com/notebook/d47b83b9-4209-4701-b16d-8a95f35f335d" target="_blank" rel="noopener noreferrer" style="--tw-shadow-color: rgba(0, 40, 82, 0.4);" class="h-full btn-glow bg-taboola-dark-blue hover:bg-taboola-dark-blue-dark text-white font-semibold p-6 rounded-xl flex items-center justify-start text-left shadow-lg">
+                            <i class="fas fa-book-open text-3xl mr-4 text-white"></i>
+                            <span class="text-lg">Retail Media</span>
+                        </a>
+                        <a href="https://notebooklm.google.com/notebook/6c31ce18-e02b-4b07-ae98-909a30715d69" target="_blank" rel="noopener noreferrer" style="--tw-shadow-color: rgba(0, 40, 82, 0.4);" class="h-full btn-glow bg-taboola-dark-blue hover:bg-taboola-dark-blue-dark text-white font-semibold p-6 rounded-xl flex items-center justify-start text-left shadow-lg">
+                            <i class="fas fa-book-open text-3xl mr-4 text-white"></i>
+                            <span class="text-lg">Identity and User Data</span>
+                        </a>
+                        <a href="https://notebooklm.google.com/notebook/4ce36f33-73ff-4a47-aca2-f8a22b18c125" target="_blank" rel="noopener noreferrer" style="--tw-shadow-color: rgba(0, 40, 82, 0.4);" class="h-full btn-glow bg-taboola-dark-blue hover:bg-taboola-dark-blue-dark text-white font-semibold p-6 rounded-xl flex items-center justify-start text-left shadow-lg">
+                            <i class="fas fa-book-open text-3xl mr-4 text-white"></i>
+                            <span class="text-lg">Curation</span>
+                        </a>
+                        <a href="https://notebooklm.google.com/notebook/405fa550-5b4d-45b0-bd7c-7edc7204e7c1" target="_blank" rel="noopener noreferrer" style="--tw-shadow-color: rgba(0, 40, 82, 0.4);" class="h-full btn-glow bg-taboola-dark-blue hover:bg-taboola-dark-blue-dark text-white font-semibold p-6 rounded-xl flex items-center justify-start text-left shadow-lg">
+                             <i class="fas fa-book-open text-3xl mr-4 text-white"></i>
+                            <span class="text-lg">OpenRTB 2.5 Protocol</span>
+                        </a>
+                         <a href="https://notebooklm.google.com/notebook/072973f2-0215-4037-892b-5889b482262d" target="_blank" rel="noopener noreferrer" style="--tw-shadow-color: rgba(0, 40, 82, 0.4);" class="h-full btn-glow bg-taboola-dark-blue hover:bg-taboola-dark-blue-dark text-white font-semibold p-6 rounded-xl flex items-center justify-start text-left shadow-lg">
+                            <i class="fas fa-book-open text-3xl mr-4 text-white"></i>
+                            <span class="text-lg">CTV Ecosystem</span>
+                        </a>
+                         <a href="https://notebooklm.google.com/notebook/2566a7ef-8d09-4fff-b076-6cc74e6673c4" target="_blank" rel="noopener noreferrer" style="--tw-shadow-color: rgba(0, 40, 82, 0.4);" class="h-full btn-glow bg-taboola-dark-blue hover:bg-taboola-dark-blue-dark text-white font-semibold p-6 rounded-xl flex items-center justify-start text-left shadow-lg">
+                            <i class="fas fa-book-open text-3xl mr-4 text-white"></i>
+                            <span class="text-lg">Misc. - GPID, OMSDK, MRAID, SKOverlay</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="section-separator"></div></div>
+
+        <!-- Coming Soon Section -->
+        <section id="coming-soon" class="tool-section">
+            <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+                <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-10 text-center">
+                    <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">More Tools Coming Soon!</h1>
+                    <p class="mt-3 text-lg text-gray-600 max-w-2xl mx-auto">This space is reserved for the next great utility to help you excel. Stay tuned for updates!</p>
+                    <a href="https://docs.google.com/spreadsheets/d/1x3hzrLZn54iEuQIxVL3nEEAGl-Vy2mG6gWMy_apLGlU/edit?usp=sharing" target="_blank" rel="noopener noreferrer" class="mt-16 inline-block bg-taboola-blue text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-taboola-blue-dark transition-transform transform hover:scale-105">
+                        View Product Roadmap
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="mt-24 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-500">
+             <div class="mb-4 text-4xl text-taboola-blue">
+                <i class="fas fa-cogs fa-spin"></i>
+            </div>
+            <p class="text-sm">Developed by Dor Bahat with Gemini 2.5 Pro, Q2 2025.</p>
+            <p class="text-sm">For any ideas or direct feedback, please reach out at&nbsp;<a href="mailto:dor.b@taboola.com" class="text-taboola-blue hover:underline">dor.b@taboola.com</a></p>
+        </div>
+    </footer>
+
+    <!-- Share Modal -->
+    <div id="share-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Shareable Link</h3>
+                <div class="mt-2 px-7 py-3">
+                    <input type="text" id="share-url-input" readonly class="w-full bg-gray-100 p-2 border rounded-md text-sm">
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button id="copy-share-link-btn" class="px-4 py-2 bg-taboola-blue text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-taboola-blue-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Copy Link
+                    </button>
+                    <button id="close-share-modal-btn" class="mt-3 px-4 py-2 bg-gray-200 text-gray-800 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /********** GLOBAL HELPERS **********/
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => { clearTimeout(timeout); func(...args); };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        /********** NAVIGATION SCRIPT **********/
+        const mainHeader = document.getElementById('main-header');
+        const logoLink = document.getElementById('logo-link');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('.tool-section');
+
+        logoLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        function updateActiveLinkOnScroll() {
+            const headerHeight = mainHeader.offsetHeight;
+            let currentSectionId = sections[0].id; 
+            
+            for (let i = sections.length - 1; i >= 0; i--) {
+                const section = sections[i];
+                const sectionTop = section.offsetTop;
+                if (window.scrollY >= sectionTop - headerHeight - 1) { 
+                    currentSectionId = section.getAttribute('id');
+                    break; 
+                }
+            }
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${currentSectionId}`) {
+                    link.classList.add('active');
+                }
+            });
+        }
+        
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                const headerHeight = mainHeader.offsetHeight;
+                const targetPosition = targetSection.offsetTop - headerHeight;
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        window.addEventListener('scroll', updateActiveLinkOnScroll);
+        window.addEventListener('load', updateActiveLinkOnScroll);
+        
+        /********** JSON BOURNE SCRIPT **********/
+        const jsonBourne = {
+            currentOption: null,
+            optionsContainer: document.getElementById('json-bourne-options'),
+            inputSection: document.getElementById('json-input-section'),
+            outputSection: document.getElementById('json-output-section'),
+            inputPrompt: document.getElementById('json-input-prompt'),
+            jsonInput: document.getElementById('json-input'),
+            output: document.getElementById('json-output'),
+            actions: document.getElementById('json-actions')
+        };
+        
+        function selectJsonOption(option) {
+            jsonBourne.currentOption = option;
+            jsonBourne.optionsContainer.classList.add('hidden');
+            jsonBourne.inputSection.classList.remove('hidden');
+            jsonBourne.inputPrompt.textContent = "Copy paste, I'm ready!";
+            jsonBourne.jsonInput.focus();
+        }
+
+        function resetJsonBourne() {
+            jsonBourne.currentOption = null;
+            jsonBourne.jsonInput.value = '';
+            jsonBourne.optionsContainer.classList.remove('hidden');
+            jsonBourne.inputSection.classList.add('hidden');
+            jsonBourne.outputSection.classList.add('hidden');
+            jsonBourne.output.innerHTML = '';
+            jsonBourne.actions.classList.add('hidden');
+            const targetSection = document.getElementById('json-bourne');
+            const headerHeight = mainHeader.offsetHeight;
+            const targetPosition = targetSection.offsetTop - headerHeight;
+            window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+        }
+
+        function processJsonInput() {
+            const input = jsonBourne.jsonInput.value.trim();
+            if (!input) {
+                jsonBourne.outputSection.classList.add('hidden');
+                jsonBourne.output.innerHTML = '';
+                return;
+            }
+            jsonBourne.outputSection.classList.remove('hidden');
+            jsonBourne.actions.classList.remove('hidden');
+            
+            try {
+                switch (jsonBourne.currentOption) {
+                    case 'format': formatJson(input); break;
+                    case 'extract_image': extractImage(input); break;
+                    case 'render_ad': renderAd(input); break;
+                    case 'play_video': playVideoAd(input); break;
+                }
+            } catch (error) {
+                 jsonBourne.output.innerHTML = `<div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md" role="alert"><p class="font-bold">Parsing Error</p><p>${error.message}</p></div>`;
+            }
+        }
+        
+        function syntaxHighlight(json) {
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                let cls = 'json-number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) cls = 'json-key';
+                    else cls = 'json-string';
+                } else if (/true|false/.test(match)) cls = 'json-boolean';
+                else if (/null/.test(match)) cls = 'json-null';
+                return `<span class="${cls}">${match}</span>`;
+            });
+        }
+
+        function displayFormattedJson(data) {
+            const container = document.createElement('div');
+            const pre = document.createElement('pre');
+            pre.className = 'bg-white p-4 rounded-lg shadow-inner text-sm pro-scroll';
+            pre.innerHTML = syntaxHighlight(JSON.stringify(data, null, 2));
+            container.appendChild(pre);
+            return container;
+        }
+
+        function formatJson(input) {
+            jsonBourne.output.innerHTML = '';
+            jsonBourne.output.appendChild(displayFormattedJson(JSON.parse(input)));
+        }
+
+        function extractImage(input) {
+            let imageUrl = null, parsedJson = null;
+            try { parsedJson = JSON.parse(input); } catch (e) { console.warn("Not valid JSON. Will try regex."); }
+            if (parsedJson && !imageUrl) imageUrl = parsedJson?.seatbid?.[0]?.bid?.[0]?.iurl;
+            if (parsedJson && !imageUrl && parsedJson?.seatbid?.[0]?.bid?.[0]?.adm) {
+                try {
+                    const admJson = JSON.parse(parsedJson.seatbid[0].bid[0].adm);
+                    const imageAsset = admJson?.native?.assets?.find(asset => asset.img && asset.img.url);
+                    if (imageAsset) imageUrl = imageAsset.img.url;
+                } catch (e) { console.warn("Could not parse 'adm' string.", e); }
+            }
+            if (!imageUrl) {
+                const match = /"img":\s*\{\s*"url":\s*"([^"]+)"/g.exec(input);
+                if (match && match[1]) imageUrl = match[1];
+            }
+            if (imageUrl) {
+                jsonBourne.output.innerHTML = `<div class="flex justify-center items-center p-4 bg-white rounded-lg shadow-inner"><img src="${imageUrl}" alt="Extracted creative" class="max-w-full h-auto rounded-lg shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/600x400/f87171/ffffff?text=Image+Failed+to+Load';"></div>`;
+            } else {
+                jsonBourne.output.innerHTML = `<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md" role="alert"><p class="font-bold">Not Found</p><p>No representative image URL found.</p></div>`;
+            }
+        }
+        
+        function renderAd(input) {
+            jsonBourne.output.innerHTML = '';
+            const data = JSON.parse(input);
+            if (data?.seatbid?.[0]?.bid?.[0]?.adm) {
+                const bid = data.seatbid[0].bid[0];
+                const { adm: admHtml, w: adWidth = 320, h: adHeight = 100 } = bid;
+                const adWrapper = document.createElement('div');
+                adWrapper.className = 'flex justify-center';
+                const adContainer = document.createElement('div');
+                adContainer.className = 'relative bg-white rounded-lg shadow-inner overflow-hidden';
+                adContainer.style.width = `${adWidth}px`;
+                adContainer.style.height = `${adHeight}px`;
+                const iframe = document.createElement('iframe');
+                iframe.style.cssText = 'width:100%;height:100%;border:0;';
+                iframe.setAttribute('scrolling', 'no');
+                iframe.setAttribute('frameborder', '0');
+                iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+                adContainer.appendChild(iframe);
+                adWrapper.appendChild(adContainer);
+                jsonBourne.output.appendChild(adWrapper);
+                iframe.contentWindow.document.open();
+                iframe.contentWindow.document.write(admHtml);
+                iframe.contentWindow.document.close();
+            } else {
+                throw new Error("The 'adm' field could not be found at the expected path (seatbid[0].bid[0].adm).");
+            }
+        }
+
+        function playVideoAd(input) {
+            jsonBourne.output.innerHTML = '';
+            let videoUrl = null, parsedJson = null;
+            const findFirstMp4Url = (urls) => (Array.isArray(urls) && urls.length > 0) ? urls.find(url => typeof url === 'string' && url.toLowerCase().endsWith('.mp4')) || null : null;
+            try {
+                parsedJson = JSON.parse(input);
+                videoUrl = findFirstMp4Url(parsedJson['jsVpaidVideoUrl.videoUrl']) || findFirstMp4Url(parsedJson['vastMediaFiles.urls']);
+            } catch (e) { console.warn("Not valid JSON. Will try regex.", e); }
+            if (!videoUrl) {
+                const matches = input.match(/(https?:\/\/[^\s"'`<>]*\.mp4)/g);
+                if (matches && matches.length > 0) videoUrl = matches[0];
+            }
+            if (!videoUrl) {
+                const pattern = '"video/mp4\\",\\"uri\\":\\"';
+                const p_start = input.indexOf(pattern);
+                if (p_start !== -1) {
+                    const url_start = p_start + pattern.length;
+                    const url_end = input.indexOf('"', url_start);
+                    if (url_end !== -1) {
+                        let potentialUrl = input.substring(url_start, url_end);
+                        if (input.charAt(url_end - 1) === '\\') {
+                            const new_end = input.indexOf('\\"', url_start);
+                            if(new_end !== -1) potentialUrl = input.substring(url_start, new_end);
+                        }
+                        videoUrl = potentialUrl;
+                    }
+                }
+            }
+            if (videoUrl) {
+                const cleanedUrl = videoUrl.replace(/\\\//g, '/');
+                const videoWrapper = document.createElement('div');
+                videoWrapper.className = 'flex justify-center';
+                const videoContainer = document.createElement('div');
+                videoContainer.className = 'aspect-video bg-black rounded-lg overflow-hidden shadow-lg w-full max-w-2xl';
+                const videoElement = document.createElement('video');
+                videoElement.src = cleanedUrl;
+                videoElement.controls = videoElement.autoplay = videoElement.muted = videoElement.loop = true;
+                videoElement.className = 'w-full h-full';
+                videoElement.onerror = () => { jsonBourne.output.innerHTML = `<div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md" role="alert"><p class="font-bold">Loading Error</p><p>Could not load video.</p></div>`; };
+                videoContainer.appendChild(videoElement);
+                videoWrapper.appendChild(videoContainer);
+                jsonBourne.output.appendChild(videoWrapper);
+            } else {
+                jsonBourne.output.innerHTML = `<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md" role="alert"><p class="font-bold">Not Found</p><p>No valid MP4 video URL found.</p></div>`;
+            }
+        }
+        jsonBourne.jsonInput.addEventListener('input', debounce(processJsonInput, 500));
+
+        function shareResult() {
+            const data = {
+                tool: jsonBourne.currentOption,
+                json: jsonBourne.jsonInput.value
+            };
+            const compressed = pako.deflate(JSON.stringify(data), { to: 'string' });
+            const encoded = btoa(compressed);
+            const shareUrl = `${window.location.origin}${window.location.pathname}?data=${encodeURIComponent(encoded)}`;
+            
+            const modal = document.getElementById('share-modal');
+            const urlInput = document.getElementById('share-url-input');
+            urlInput.value = shareUrl;
+            modal.classList.remove('hidden');
+        }
+
+        document.getElementById('close-share-modal-btn').addEventListener('click', () => {
+            document.getElementById('share-modal').classList.add('hidden');
+        });
+        
+        document.getElementById('copy-share-link-btn').addEventListener('click', () => {
+            const urlInput = document.getElementById('share-url-input');
+            urlInput.select();
+            document.execCommand('copy');
+            const notification = document.getElementById('copyNotification');
+            notification.classList.remove('hidden');
+            setTimeout(() => notification.classList.add('hidden'), 2000);
+        });
+
+        window.addEventListener('load', () => {
+            const params = new URLSearchParams(window.location.search);
+            const data = params.get('data');
+            if (data) {
+                try {
+                    const decoded = decodeURIComponent(data);
+                    const decompressed = pako.inflate(atob(decoded), { to: 'string' });
+                    const sharedData = JSON.parse(decompressed);
+                    
+                    if (sharedData.tool && sharedData.json) {
+                        selectJsonOption(sharedData.tool);
+                        jsonBourne.jsonInput.value = sharedData.json;
+                        processJsonInput();
+                        document.getElementById('json-bourne').scrollIntoView();
+                    }
+                } catch (e) {
+                    console.error("Failed to load shared data:", e);
+                }
+            }
+        });
+
+        /********** ADS.TXT CRAWLER SCRIPT **********/
+        const adsTxtCrawler = {
+            fetchButton: document.getElementById('fetchButton'), websiteUrlInput: document.getElementById('websiteUrl'), appAdsToggle: document.getElementById('appAdsToggle'), adsTxtOutput: document.getElementById('adsTxtOutput'), resultContainer: document.getElementById('resultContainer'), summaryContainer: document.getElementById('summaryContainer'), resultTitle: document.getElementById('resultTitle'), sourceLink: document.getElementById('sourceLink'), errorContainer: document.getElementById('errorContainer'), errorMessage: document.getElementById('errorMessage'), loader: document.getElementById('loader'), buttonText: document.getElementById('button-text'), copyButton: document.getElementById('copyButton'), copyNotification: document.getElementById('copyNotification'), resellerStatusContainer: document.getElementById('resellerStatusContainer'), resellerStatusTableBody: document.getElementById('resellerStatusTableBody'), downloadCsvBtn: document.getElementById('downloadCsvBtn'), directNav: document.getElementById('directNav'), resellerNav: document.getElementById('resellerNav'), errorNav: document.getElementById('errorNav'), directNavCounter: document.getElementById('directNavCounter'), resellerNavCounter: document.getElementById('resellerNavCounter'), errorNavCounter: document.getElementById('errorNavCounter'),
+            rawAdsTxtContent: '', currentHighlightClass: '', activeNavMode: null, directElements: [], resellerElements: [], errorElements: [], currentIndex: { direct: -1, reseller: -1, error: -1 },
+            ADS_TXT_RESELLERS: new Set(['pubmatic.com,156307,RESELLER,5d62403b186f2ace', 'appnexus.com,3364,RESELLER', 'indexexchange.com,183756,RESELLER', 'contextweb.com,560382,RESELLER', 'rubiconproject.com,16698,RESELLER,0bfd66d529a55807', 'openx.com,539154393,RESELLER', 'freewheel.tv,799921,RESELLER', 'smartadserver.com,3563,RESELLER', 'beachfront.com,13749,RESELLER,e2541279e8e2ca4d', 'improvedigital.com,1577,RESELLER', 'video.unrulymedia.com,1166984029,RESELLER', 'smaato.com,1100047487,RESELLER,07bcf65f187117b4', 'sonobi.com,9a1db44c9c,RESELLER,d1a215d9eb5aee9e', 'sharethrough.com,RVhuFS44,RESELLER,d53b998a7bd4ecd2', 'amxrtb.com,105199725,RESELLER', 'emxdgt.com,1643,RESELLER,1e1d41537f7cad7f', 'media.net,8CU292ZDI,RESELLER', 'yieldmo.com,3357506016601120771,RESELLER', 'triplelift.com,14073,RESELLER,6c33edb13117fd86', 'inmobi.com,a985e39014a94721a8e97c929d32ef9d,RESELLER,83e75a7ae333ca9d', 'google.com,pub-3677668629134422,RESELLER,f08c47fec0942fa0'].map(l => l.replace(/\s/g, '').toLowerCase())),
+            APP_ADS_TXT_RESELLERS: new Set(['pubmatic.com,156307,RESELLER,5d62403b186f2ace', 'appnexus.com,3364,RESELLER', 'indexexchange.com,183756,RESELLER', 'contextweb.com,560382,RESELLER', 'rubiconproject.com,16698,RESELLER,0bfd66d529a55807', 'openx.com,539154393,RESELLER', 'freewheel.tv,799921,RESELLER', 'smartadserver.com,3563,RESELLER', 'beachfront.com,13749,RESELLER,e2541279e8e2ca4d', 'improvedigital.com,1577,RESELLER', 'video.unrulymedia.com,1166984029,RESELLER', 'smaato.com,1100047487,RESELLER,07bcf65f187117b4', 'sonobi.com,9a1db44c9c,RESELLER,d1a215d9eb5aee9e', 'sharethrough.com,RVhuFS44,RESELLER,d53b998a7bd4ecd2', 'amxrtb.com,105199725,RESELLER', 'emxdgt.com,1643,RESELLER,1e1d41537f7cad7f', 'media.net,8CU292ZDI,RESELLER', 'yieldmo.com,3357506016601120771,RESELLER', 'triplelift.com,14073,RESELLER,6c33edb13117fd86', 'inmobi.com,a985e39014a94721a8e97c929d32ef9d,RESELLER,83e75a7ae333ca9d', 'google.com,pub-3677668629134422,RESELLER,f08c47fec0942fa0', 'pubnative.net,1007180,RESELLER,d641df8625486a7b', 'media.net,8CU7949E6,RESELLER'].map(l => l.replace(/\s/g, '').toLowerCase()))
+        };
+
+        function resetAdsTxtState() {
+            [adsTxtCrawler.resultContainer, adsTxtCrawler.summaryContainer, adsTxtCrawler.errorContainer, adsTxtCrawler.directNav, adsTxtCrawler.resellerNav, adsTxtCrawler.errorNav, adsTxtCrawler.resellerStatusContainer].forEach(el => el.classList.add('hidden'));
+            adsTxtCrawler.currentIndex = { direct: -1, reseller: -1, error: -1 };
+            [adsTxtCrawler.directElements, adsTxtCrawler.resellerElements, adsTxtCrawler.errorElements] = [[], [], []];
+            adsTxtCrawler.activeNavMode = null;
+            adsTxtCrawler.resellerStatusTableBody.innerHTML = '';
+            if(adsTxtCrawler.currentHighlightClass) {
+                const highlighted = adsTxtCrawler.adsTxtOutput.querySelector('.' + adsTxtCrawler.currentHighlightClass);
+                if (highlighted) highlighted.classList.remove(adsTxtCrawler.currentHighlightClass);
+            }
+        }
+        
+        function parseAndDisplayAdsTxt(text) {
+            const lines = text.split('\n');
+            let outputHtml = '', stats = { taboolaDirect: 0, taboolaReseller: 0, errors: 0 };
+            const uniqueSellers = new Set(), foundLines = new Set();
+            const resellerList = adsTxtCrawler.appAdsToggle.checked ? adsTxtCrawler.APP_ADS_TXT_RESELLERS : adsTxtCrawler.ADS_TXT_RESELLERS;
+            
+            lines.forEach((line, index) => {
+                const trimmedLine = line.trim();
+                if (!trimmedLine) return;
+                const lineNumber = `<span class="line-number">${index + 1}</span>`;
+                let lineContent = ``, lineClass = '', dataPart = trimmedLine, commentPart = '';
+                const commentIndex = trimmedLine.indexOf('#');
+
+                if (trimmedLine.startsWith('#')) {
+                    lineContent = `<span class="line-comment">${lineNumber}${trimmedLine}</span>`;
+                } else {
+                    dataPart = (commentIndex !== -1) ? trimmedLine.substring(0, commentIndex).trim() : trimmedLine;
+                    commentPart = (commentIndex !== -1) ? ` <span class="line-comment">${trimmedLine.substring(commentIndex)}</span>` : '';
+                    
+                    if (dataPart.includes('=')) {
+                        const parts = dataPart.split('=');
+                        if (parts.length === 2 && parts[0].trim() && parts[1].trim()) {
+                            lineContent = `<span class="line-variable">${lineNumber}${dataPart}</span>${commentPart}`;
+                        } else {
+                            stats.errors++;
+                            lineContent = `<span class="line-error" title="Invalid variable format">${lineNumber}${trimmedLine} <i class="fas fa-exclamation-triangle error-icon"></i></span>`;
+                        }
+                    } else {
+                        const fields = dataPart.split(',').map(f => f.trim());
+                        const normalizedLine = dataPart.replace(/\s/g, '').toLowerCase();
+                        if (fields.length < 3 || fields.length > 4 || !fields[0] || !fields[1] || !fields[2] || !['direct', 'reseller'].includes(fields[2].toLowerCase())) {
+                            stats.errors++;
+                            lineContent = `<span class="line-error" title="Validation failed. Check fields.">${lineNumber}${trimmedLine} <i class="fas fa-exclamation-triangle error-icon"></i></span>`;
+                        } else {
+                            foundLines.add(normalizedLine);
+                            const sellerDomain = fields[0].toLowerCase();
+                            uniqueSellers.add(sellerDomain);
+                            if (resellerList.has(normalizedLine)) { stats.taboolaReseller++; lineClass = 'line-taboola-reseller'; }
+                            else if (sellerDomain === 'taboola.com') { stats.taboolaDirect++; lineClass = 'line-taboola-direct'; }
+                            lineContent = `<span class="line-valid">${lineNumber}${dataPart}</span>${commentPart}`;
+                        }
+                    }
+                }
+                outputHtml += `<span class="line ${lineClass}" data-line-number="${index + 1}">${lineContent}</span>`;
+            });
+            
+            adsTxtCrawler.adsTxtOutput.innerHTML = outputHtml || 'File is empty.';
+            adsTxtCrawler.directElements = adsTxtCrawler.adsTxtOutput.querySelectorAll('.line-taboola-direct');
+            adsTxtCrawler.resellerElements = adsTxtCrawler.adsTxtOutput.querySelectorAll('.line-taboola-reseller');
+            adsTxtCrawler.errorElements = adsTxtCrawler.adsTxtOutput.querySelectorAll('.line-error');
+
+            document.getElementById('taboolaDirectCount').textContent = stats.taboolaDirect;
+            document.getElementById('taboolaResellerCount').textContent = stats.taboolaReseller;
+            document.getElementById('uniqueSellers').textContent = uniqueSellers.size;
+            document.getElementById('errorCount').textContent = stats.errors;
+            
+            setupAdsTxtNav('direct', adsTxtCrawler.directElements, adsTxtCrawler.directNav, adsTxtCrawler.directNavCounter);
+            setupAdsTxtNav('reseller', adsTxtCrawler.resellerElements, adsTxtCrawler.resellerNav, adsTxtCrawler.resellerNavCounter);
+            setupAdsTxtNav('error', adsTxtCrawler.errorElements, adsTxtCrawler.errorNav, adsTxtCrawler.errorNavCounter);
+            populateResellerStatusTable(resellerList, foundLines);
+            adsTxtCrawler.summaryContainer.classList.remove('hidden');
+            adsTxtCrawler.resultContainer.classList.remove('hidden');
+        }
+        
+        function populateResellerStatusTable(resellerList, foundLines) {
+            adsTxtCrawler.resellerStatusTableBody.innerHTML = '';
+            const sortedResellers = Array.from(resellerList).sort();
+            sortedResellers.forEach(resellerLine => {
+                const isIncluded = foundLines.has(resellerLine);
+                const statusClass = isIncluded ? 'status-included' : 'status-missing';
+                const statusText = isIncluded ? 'Included' : 'Missing';
+                adsTxtCrawler.resellerStatusTableBody.innerHTML += `<tr><td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-700">${resellerLine}</td><td class="px-6 py-4 whitespace-nowrap text-sm ${statusClass}">${statusText}</td></tr>`;
+            });
+            adsTxtCrawler.resellerStatusContainer.classList.remove('hidden');
+        }
+
+        function setupAdsTxtNav(type, elements, navEl, counterEl) {
+            const cardElement = document.getElementById(type === 'error' ? 'errorsCard' : `${type}Card`);
+            if (elements.length > 0) {
+                cardElement?.classList.add('cursor-pointer');
+                if (elements.length > 1) { navEl.classList.remove('hidden'); counterEl.textContent = `0/${elements.length}`; }
+            } else {
+                cardElement?.classList.remove('cursor-pointer');
+            }
+        }
+        
+        async function fetchAdsTxt() {
+            setAdsTxtLoading(true);
+            resetAdsTxtState();
+            let url = adsTxtCrawler.websiteUrlInput.value.trim();
+            if (!url) { showAdsTxtError('Please enter a website URL.'); setAdsTxtLoading(false); return; }
+            if (!url.match(/^https?:\/\//)) url = 'https://' + url;
+
+            try {
+                const domain = new URL(url).hostname;
+                const fileName = adsTxtCrawler.appAdsToggle.checked ? 'app-ads.txt' : 'ads.txt';
+                const adsTxtUrl = `https://${domain}/${fileName}`;
+                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(adsTxtUrl)}`;
+                
+                adsTxtCrawler.resultTitle.textContent = `Validating ${fileName} for: ${domain}`;
+                adsTxtCrawler.sourceLink.href = adsTxtUrl;
+
+                const response = await fetch(proxyUrl);
+                if (response.ok) {
+                    adsTxtCrawler.rawAdsTxtContent = await response.text();
+                    parseAndDisplayAdsTxt(adsTxtCrawler.rawAdsTxtContent);
+                } else {
+                    showAdsTxtError(`Failed to fetch. Server responded: ${response.status}. The file may not exist.`);
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                showAdsTxtError('Network error or invalid domain. Check console for details.');
+            } finally {
+                setAdsTxtLoading(false);
+            }
+        }
+
+        function navigateToLine(type, direction) {
+            adsTxtCrawler.activeNavMode = type;
+            const elements = { direct: adsTxtCrawler.directElements, reseller: adsTxtCrawler.resellerElements, error: adsTxtCrawler.errorElements }[type];
+            if (elements.length === 0) return;
+
+            if(adsTxtCrawler.currentHighlightClass) {
+                const highlighted = adsTxtCrawler.adsTxtOutput.querySelector('.' + adsTxtCrawler.currentHighlightClass);
+                if (highlighted) highlighted.classList.remove(adsTxtCrawler.currentHighlightClass);
+            }
+            if (direction === 'next') adsTxtCrawler.currentIndex[type] = (adsTxtCrawler.currentIndex[type] + 1) % elements.length;
+            else adsTxtCrawler.currentIndex[type] = (adsTxtCrawler.currentIndex[type] - 1 + elements.length) % elements.length;
+            
+            const currentEl = elements[adsTxtCrawler.currentIndex[type]];
+            currentEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            adsTxtCrawler.currentHighlightClass = 'current-line-highlight';
+            currentEl.classList.add(adsTxtCrawler.currentHighlightClass);
+
+            const counterEl = { direct: adsTxtCrawler.directNavCounter, reseller: adsTxtCrawler.resellerNavCounter, error: adsTxtCrawler.errorNavCounter }[type];
+            if(counterEl && !counterEl.parentElement.classList.contains('hidden')) counterEl.textContent = `${adsTxtCrawler.currentIndex[type] + 1}/${elements.length}`;
+        }
+        
+        function downloadResellerStatusCSV() {
+            const resellerList = adsTxtCrawler.appAdsToggle.checked ? adsTxtCrawler.APP_ADS_TXT_RESELLERS : adsTxtCrawler.ADS_TXT_RESELLERS;
+            const foundLines = new Set(adsTxtCrawler.rawAdsTxtContent.split('\n').map(l => l.replace(/\s/g, '').toLowerCase()));
+            let csvContent = '"Required RESELLER Line","Status"\n';
+            Array.from(resellerList).sort().forEach(resellerLine => {
+                csvContent += `"${resellerLine}","${foundLines.has(resellerLine) ? 'Included' : 'Missing'}"\n`;
+            });
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", "reseller_status.csv");
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        function setAdsTxtLoading(isLoading) { adsTxtCrawler.fetchButton.disabled = isLoading; adsTxtCrawler.buttonText.classList.toggle('hidden', isLoading); adsTxtCrawler.loader.classList.toggle('hidden', !isLoading); }
+        function showAdsTxtError(message) { resetAdsTxtState(); adsTxtCrawler.errorMessage.textContent = message; adsTxtCrawler.errorContainer.classList.remove('hidden'); }
+        function copyToClipboard() { if(!adsTxtCrawler.rawAdsTxtContent) return; navigator.clipboard.writeText(adsTxtCrawler.rawAdsTxtContent).then(() => { adsTxtCrawler.copyNotification.classList.remove('hidden'); setTimeout(() => adsTxtCrawler.copyNotification.classList.add('hidden'), 2000); }).catch(err => console.error(err)); }
+
+        adsTxtCrawler.fetchButton.addEventListener('click', fetchAdsTxt);
+        adsTxtCrawler.websiteUrlInput.addEventListener('keydown', e => { if (e.key === 'Enter') fetchAdsTxt(); });
+        adsTxtCrawler.copyButton.addEventListener('click', copyToClipboard);
+        adsTxtCrawler.downloadCsvBtn.addEventListener('click', downloadResellerStatusCSV);
+        ['direct', 'reseller', 'error'].forEach(type => {
+            const cardId = type === 'error' ? 'errorsCard' : `${type}Card`;
+            document.getElementById(cardId)?.addEventListener('click', (e) => { if (!e.target.closest('button')) navigateToLine(type, 'next'); });
+            document.getElementById(`prev${type.charAt(0).toUpperCase() + type.slice(1)}Btn`)?.addEventListener('click', (e) => { e.stopPropagation(); navigateToLine(type, 'prev'); });
+            document.getElementById(`next${type.charAt(0).toUpperCase() + type.slice(1)}Btn`)?.addEventListener('click', (e) => { e.stopPropagation(); navigateToLine(type, 'next'); });
+        });
+        document.addEventListener('keydown', e => { if (e.key === 'Enter' && adsTxtCrawler.activeNavMode && document.activeElement !== adsTxtCrawler.websiteUrlInput) { e.preventDefault(); navigateToLine(adsTxtCrawler.activeNavMode, 'next'); } });
+    </script>
+</body>
+</html>
