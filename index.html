@@ -597,9 +597,8 @@
                 tool: jsonBourne.currentOption,
                 json: jsonBourne.jsonInput.value
             };
-            const compressed = pako.deflate(JSON.stringify(data), { to: 'string' });
-            const encoded = btoa(compressed);
-            const shareUrl = `${window.location.origin}${window.location.pathname}?data=${encodeURIComponent(encoded)}`;
+            const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(data));
+            const shareUrl = `${window.location.origin}${window.location.pathname}?data=${compressed}`;
             
             const modal = document.getElementById('share-modal');
             const urlInput = document.getElementById('share-url-input');
@@ -625,8 +624,7 @@
             const data = params.get('data');
             if (data) {
                 try {
-                    const decoded = decodeURIComponent(data);
-                    const decompressed = pako.inflate(atob(decoded), { to: 'string' });
+                    const decompressed = LZString.decompressFromEncodedURIComponent(data);
                     const sharedData = JSON.parse(decompressed);
                     
                     if (sharedData.tool && sharedData.json) {
