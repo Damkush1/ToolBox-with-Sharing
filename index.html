@@ -38,6 +38,7 @@
         .bg-taboola-blue { background-color: #0056f0; }
         .hover\:bg-taboola-blue-dark:hover { background-color: #0045d1; }
         .text-taboola-blue { color: #0056f0; }
+        .border-taboola-blue { border-color: #0056f0; }
         
         .bg-taboola-turquoise { background-color: #00f0d2; }
         .hover\:bg-taboola-turquoise-dark:hover { background-color: #00d1b3; }
@@ -63,7 +64,7 @@
         .json-null { color: #6b7280; }
 
         /* Ads.txt Crawler Styles */
-        .loader { border-top-color: #0056f0; -webkit-animation: spin 1s linear infinite; animation: spin 1s linear infinite; }
+        .loader { -webkit-animation: spin 1s linear infinite; animation: spin 1s linear infinite; }
         @-webkit-keyframes spin { 0% { -webkit-transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); } }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
@@ -83,6 +84,12 @@
         
         .status-included { color: #16a34a; font-weight: 600; }
         .status-missing { color: #dc2626; font-weight: 600; }
+
+        /* Bulk Checker Styles */
+        .status-found { color: #16a34a; font-weight: 600; }
+        .status-not-found { color: #ca8a04; font-weight: 600; }
+        .status-file-missing { color: #ea580c; font-weight: 600; }
+        .status-error { color: #dc2626; font-weight: 600; }
 
         /* Navigation Styling */
         .nav-link {
@@ -121,6 +128,21 @@
             50% { transform: translateY(-20px); }
             100% { transform: translateY(0px); }
         }
+
+        /* Learning Space Video */
+        .aspect-video {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+        }
+        .aspect-video iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
     </style>
 </head>
 <body class="text-gray-900">
@@ -131,7 +153,7 @@
         <div class="hero-shape three"></div>
         <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8 text-center relative z-10">
             <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">Programmatic AM ToolBox</h1>
-            <p class="mt-4 max-w-3xl mx-auto text-lg sm:text-xl text-gray-300">100% Fully Created With AI, Built by Account Managers for Account Managers!</p>
+            <p class="mt-4 max-w-3xl mx-auto text-lg sm:text-xl text-gray-300">100% Fully Vibe-Coded With AI, Built by Account Managers for Account Managers!</p>
         </div>
     </div>
 
@@ -140,7 +162,7 @@
             <div class="flex items-center justify-between h-24">
                 <div class="flex items-center">
                     <a href="#" id="logo-link" class="flex-shrink-0">
-                        <img src="https://i.ibb.co/tMqkJVYX/Chat-GPT-Image-Jun-25-2025-01-32-56-PM.png" alt="Taboola Programmatic Logo" class="h-24 w-auto">
+                        <img src="https://i.ibb.co/tMqkJVYX/Chat-GPT-Image-Jun-25-2025-01-32-56-PM.png" alt="Taboola Programmatic Logo" class="h-24 w-auto" onerror="this.onerror=null; this.src='https://placehold.co/200x100/002852/ffffff?text=Logo';">
                     </a>
                     <div class="hidden md:block">
                         <div class="ml-10 flex items-baseline space-x-4">
@@ -190,10 +212,10 @@
                          <h2 class="text-2xl font-bold text-gray-900 border-b-2 border-gray-200 pb-3 mb-6">Result</h2>
                          <div id="json-output" class="output-container bg-gray-100 p-4 rounded-xl"></div>
                          <div id="json-actions" class="mt-8 text-center">
-                            <button onclick="resetJsonBourne()" class="bg-gray-700 text-white font-semibold py-2 px-8 rounded-lg hover:bg-gray-800 transition duration-300">Start Over</button>
-                            <button id="share-button" onclick="shareResult()" class="bg-taboola-blue text-white font-semibold py-2 px-8 rounded-lg hover:bg-taboola-blue-dark transition duration-300 ml-4">
-                                <i class="fas fa-share-alt mr-2"></i>Share
-                            </button>
+                             <button onclick="resetJsonBourne()" class="bg-gray-700 text-white font-semibold py-2 px-8 rounded-lg hover:bg-gray-800 transition duration-300">Start Over</button>
+                             <button id="share-button" onclick="shareResult()" class="bg-taboola-blue text-white font-semibold py-2 px-8 rounded-lg hover:bg-taboola-blue-dark transition duration-300 ml-4">
+                                 <i class="fas fa-share-alt mr-2"></i>Share
+                             </button>
                          </div>
                     </div>
                 </div>
@@ -202,9 +224,10 @@
         
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="section-separator"></div></div>
 
-        <!-- Advanced Ads.txt Crawler Section -->
+        <!-- Ads.txt Crawler Section -->
         <section id="ads-txt-crawler" class="tool-section">
              <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+                <!-- Single Site Crawler -->
                 <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-10">
                     <div class="text-center mb-6">
                         <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Advanced Ads.txt Crawler</h1>
@@ -214,7 +237,7 @@
                         <input type="text" id="websiteUrl" placeholder="e.g., example.com" class="flex-grow w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-taboola-blue focus:border-transparent transition">
                         <button id="fetchButton" class="w-full sm:w-auto bg-white text-taboola-blue border-2 border-taboola-blue font-semibold px-6 py-3 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-taboola-blue focus:ring-opacity-50 transition-transform transform hover:scale-105 active:scale-100 flex items-center justify-center">
                             <span id="button-text">Validate</span>
-                            <img id="loader" src="https://i.ibb.co/cXyfzrHz/lgo-taboola-logo-2024-dark-blue-smiley.jpg" alt="Loading..." class="h-6 w-6 ml-3 hidden animate-spin">
+                            <img id="loader" src="https://i.ibb.co/cXyfzrHz/lgo-taboola-logo-2024-dark-blue-smiley.jpg" alt="Loading..." class="h-6 w-6 ml-3 hidden animate-spin" onerror="this.style.display='none'">
                         </button>
                     </div>
                     <div class="flex items-center justify-center mb-6">
@@ -262,6 +285,83 @@
                     </div>
                     <div id="copyNotification" class="hidden fixed bottom-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg">Copied to clipboard!</div>
                 </div>
+
+                <div class="section-separator my-16"></div>
+
+                <!-- Bulk Line Checker -->
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <div class="text-center mb-6">
+                        <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Single Ads.txt Line Checker</h1>
+                        <p class="text-gray-500 mt-2">Check for a single ads.txt line across multiple websites.</p>
+                    </div>
+                    
+                    <!-- Input Section -->
+                    <div class="space-y-6 mb-6">
+                        <div>
+                            <label for="adsLineInput" class="block text-sm font-medium text-gray-700 mb-1">1. Ads.txt Line to Find</label>
+                            <input type="text" id="adsLineInput" placeholder="google.com, pub-12345, DIRECT, f08c47fec0942fa0" class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-taboola-blue">
+                        </div>
+                        <div>
+                            <label for="websitesList" class="block text-sm font-medium text-gray-700 mb-1">2. Websites (one per line)</label>
+                            <textarea id="websitesList" rows="6" placeholder="example.com&#10;anothersite.org&#10;webaudit.co" class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-taboola-blue"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col items-center justify-center mb-6">
+                         <label for="bulkAppAdsToggle" class="flex items-center cursor-pointer mb-4">
+                            <input type="checkbox" id="bulkAppAdsToggle" class="form-checkbox h-5 w-5 text-taboola-blue rounded focus:ring-taboola-blue">
+                            <span class="ml-2 text-gray-700">Check for app-ads.txt</span>
+                        </label>
+                        <div id="controls" class="flex items-center gap-4">
+                            <button id="checkButton" class="bg-taboola-blue text-white font-semibold px-8 py-3 rounded-lg hover:bg-taboola-blue-dark flex items-center justify-center">
+                                <i class="fas fa-play mr-2"></i>Start Scan
+                            </button>
+                            <button id="pauseButton" class="bg-yellow-500 text-white font-semibold px-8 py-3 rounded-lg hover:bg-yellow-600 hidden items-center justify-center">
+                                <i class="fas fa-pause mr-2"></i>Pause
+                            </button>
+                            <button id="resumeButton" class="bg-green-500 text-white font-semibold px-8 py-3 rounded-lg hover:bg-green-600 hidden items-center justify-center">
+                                <i class="fas fa-play mr-2"></i>Resume
+                            </button>
+                            <button id="cancelButton" class="bg-gray-600 text-white font-semibold px-8 py-3 rounded-lg hover:bg-gray-700 hidden items-center justify-center">
+                                <i class="fas fa-stop mr-2"></i>Cancel
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Progress Bar -->
+                    <div id="progressContainer" class="hidden my-4">
+                        <p id="progressLabel" class="text-center text-sm text-gray-600 mb-1">Checking...</p>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div id="progressBar" class="bg-taboola-blue h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Results Section -->
+                    <div id="bulkResultsContainer" class="hidden mt-8">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 id="bulkResultsTitle" class="text-2xl font-bold text-gray-800">Results</h2>
+                             <button id="bulkDownloadCsvBtn" class="bg-green-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition text-sm flex items-center">
+                                <i class="fas fa-download mr-2"></i>Download CSV
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto bg-white rounded-lg shadow max-h-96">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50 sticky top-0">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Website</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bulkResultsTableBody" class="bg-white divide-y divide-gray-200">
+                                    <!-- Results will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Error Message Display -->
+                    <div id="bulkErrorContainer" class="hidden mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg" role="alert"></div>
+                </div>
             </div>
         </section>
 
@@ -273,33 +373,74 @@
                 <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-10">
                     <div class="text-center">
                         <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Learning Space</h1>
-                        <p class="mt-3 text-lg text-gray-600 max-w-2xl mx-auto">Explore and Master Selected Topics in Ad-Tech by Engaging with NotebookLM Pre-generated Spaces.</p>
+                        <p class="mt-3 text-lg text-gray-600 max-w-2xl mx-auto">Watch an introductory video and then dive deep by engaging with our pre-generated NotebookLM spaces.</p>
                     </div>
-                    <div class="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 grid-auto-rows-fr">
-                        <a href="https://notebooklm.google.com/notebook/d47b83b9-4209-4701-b16d-8a95f35f335d" target="_blank" rel="noopener noreferrer" style="--tw-shadow-color: rgba(0, 40, 82, 0.4);" class="h-full btn-glow bg-taboola-dark-blue hover:bg-taboola-dark-blue-dark text-white font-semibold p-6 rounded-xl flex items-center justify-start text-left shadow-lg">
-                            <i class="fas fa-book-open text-3xl mr-4 text-white"></i>
-                            <span class="text-lg">Retail Media</span>
-                        </a>
-                        <a href="https://notebooklm.google.com/notebook/6c31ce18-e02b-4b07-ae98-909a30715d69" target="_blank" rel="noopener noreferrer" style="--tw-shadow-color: rgba(0, 40, 82, 0.4);" class="h-full btn-glow bg-taboola-dark-blue hover:bg-taboola-dark-blue-dark text-white font-semibold p-6 rounded-xl flex items-center justify-start text-left shadow-lg">
-                            <i class="fas fa-book-open text-3xl mr-4 text-white"></i>
-                            <span class="text-lg">Identity and User Data</span>
-                        </a>
-                        <a href="https://notebooklm.google.com/notebook/4ce36f33-73ff-4a47-aca2-f8a22b18c125" target="_blank" rel="noopener noreferrer" style="--tw-shadow-color: rgba(0, 40, 82, 0.4);" class="h-full btn-glow bg-taboola-dark-blue hover:bg-taboola-dark-blue-dark text-white font-semibold p-6 rounded-xl flex items-center justify-start text-left shadow-lg">
-                            <i class="fas fa-book-open text-3xl mr-4 text-white"></i>
-                            <span class="text-lg">Curation</span>
-                        </a>
-                        <a href="https://notebooklm.google.com/notebook/405fa550-5b4d-45b0-bd7c-7edc7204e7c1" target="_blank" rel="noopener noreferrer" style="--tw-shadow-color: rgba(0, 40, 82, 0.4);" class="h-full btn-glow bg-taboola-dark-blue hover:bg-taboola-dark-blue-dark text-white font-semibold p-6 rounded-xl flex items-center justify-start text-left shadow-lg">
-                             <i class="fas fa-book-open text-3xl mr-4 text-white"></i>
-                            <span class="text-lg">OpenRTB 2.5 Protocol</span>
-                        </a>
-                         <a href="https://notebooklm.google.com/notebook/072973f2-0215-4037-892b-5889b482262d" target="_blank" rel="noopener noreferrer" style="--tw-shadow-color: rgba(0, 40, 82, 0.4);" class="h-full btn-glow bg-taboola-dark-blue hover:bg-taboola-dark-blue-dark text-white font-semibold p-6 rounded-xl flex items-center justify-start text-left shadow-lg">
-                            <i class="fas fa-book-open text-3xl mr-4 text-white"></i>
-                            <span class="text-lg">CTV Ecosystem</span>
-                        </a>
-                         <a href="https://notebooklm.google.com/notebook/2566a7ef-8d09-4fff-b076-6cc74e6673c4" target="_blank" rel="noopener noreferrer" style="--tw-shadow-color: rgba(0, 40, 82, 0.4);" class="h-full btn-glow bg-taboola-dark-blue hover:bg-taboola-dark-blue-dark text-white font-semibold p-6 rounded-xl flex items-center justify-start text-left shadow-lg">
-                            <i class="fas fa-book-open text-3xl mr-4 text-white"></i>
-                            <span class="text-lg">Misc. - GPID, OMSDK, MRAID, SKOverlay</span>
-                        </a>
+                    <div class="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- Card 1: Retail Media -->
+                        <div class="bg-gray-50 rounded-2xl shadow-lg p-6 flex flex-col transition-transform transform hover:scale-105">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">Retail Media</h3>
+                            <div class="aspect-video mb-4 rounded-lg overflow-hidden shadow-inner">
+                                <iframe src="https://www.youtube.com/embed/aYNTl4bPfy8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                            </div>
+                            <a href="https://notebooklm.google.com/notebook/d47b83b9-4209-4701-b16d-8a95f35f335d" target="_blank" rel="noopener noreferrer" class="mt-auto w-full text-center bg-taboola-blue hover:bg-taboola-blue-dark text-white font-semibold py-2 px-4 rounded-lg transition duration-300 flex items-center justify-center">
+                                Explore in NotebookLM <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+        
+                        <!-- Card 2: Identity and User Data -->
+                        <div class="bg-gray-50 rounded-2xl shadow-lg p-6 flex flex-col transition-transform transform hover:scale-105">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">Identity & User Data</h3>
+                            <div class="aspect-video mb-4 rounded-lg overflow-hidden shadow-inner">
+                                <iframe src="https://www.youtube.com/embed/m8O4dkWvGH0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                            </div>
+                            <a href="https://notebooklm.google.com/notebook/6c31ce18-e02b-4b07-ae98-909a30715d69" target="_blank" rel="noopener noreferrer" class="mt-auto w-full text-center bg-taboola-blue hover:bg-taboola-blue-dark text-white font-semibold py-2 px-4 rounded-lg transition duration-300 flex items-center justify-center">
+                                Explore in NotebookLM <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+        
+                        <!-- Card 3: Curation -->
+                        <div class="bg-gray-50 rounded-2xl shadow-lg p-6 flex flex-col transition-transform transform hover:scale-105">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">Curation</h3>
+                            <div class="aspect-video mb-4 rounded-lg overflow-hidden shadow-inner">
+                                <iframe src="https://www.youtube.com/embed/zKlljbYOKoQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                            </div>
+                            <a href="https://notebooklm.google.com/notebook/4ce36f33-73ff-4a47-aca2-f8a22b18c125" target="_blank" rel="noopener noreferrer" class="mt-auto w-full text-center bg-taboola-blue hover:bg-taboola-blue-dark text-white font-semibold py-2 px-4 rounded-lg transition duration-300 flex items-center justify-center">
+                                Explore in NotebookLM <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+        
+                        <!-- Card 4: OpenRTB 2.5 Protocol -->
+                        <div class="bg-gray-50 rounded-2xl shadow-lg p-6 flex flex-col transition-transform transform hover:scale-105">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">OpenRTB 2.5 Protocol</h3>
+                            <div class="aspect-video mb-4 rounded-lg overflow-hidden shadow-inner">
+                                <iframe src="https://www.youtube.com/embed/smet8tIb1B4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                            </div>
+                            <a href="https://notebooklm.google.com/notebook/405fa550-5b4d-45b0-bd7c-7edc7204e7c1" target="_blank" rel="noopener noreferrer" class="mt-auto w-full text-center bg-taboola-blue hover:bg-taboola-blue-dark text-white font-semibold py-2 px-4 rounded-lg transition duration-300 flex items-center justify-center">
+                                Explore in NotebookLM <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+        
+                        <!-- Card 5: CTV Ecosystem -->
+                        <div class="bg-gray-50 rounded-2xl shadow-lg p-6 flex flex-col transition-transform transform hover:scale-105">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">CTV Ecosystem</h3>
+                            <div class="aspect-video mb-4 rounded-lg overflow-hidden shadow-inner">
+                                <iframe src="https://www.youtube.com/embed/WFnrWvkAswo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                            </div>
+                            <a href="https://notebooklm.google.com/notebook/072973f2-0215-4037-892b-5889b482262d" target="_blank" rel="noopener noreferrer" class="mt-auto w-full text-center bg-taboola-blue hover:bg-taboola-blue-dark text-white font-semibold py-2 px-4 rounded-lg transition duration-300 flex items-center justify-center">
+                                Explore in NotebookLM <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+        
+                        <!-- Card 6: Misc. -->
+                        <div class="bg-gray-50 rounded-2xl shadow-lg p-6 flex flex-col transition-transform transform hover:scale-105">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">Misc. Topics</h3>
+                            <div class="aspect-video mb-4 rounded-lg overflow-hidden shadow-inner">
+                                <iframe src="https://www.youtube.com/embed/mU3QPFFcHik" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                            </div>
+                            <a href="https://notebooklm.google.com/notebook/2566a7ef-8d09-4fff-b076-6cc74e6673c4" target="_blank" rel="noopener noreferrer" class="mt-auto w-full text-center bg-taboola-blue hover:bg-taboola-blue-dark text-white font-semibold py-2 px-4 rounded-lg transition duration-300 flex items-center justify-center">
+                                Explore in NotebookLM <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -652,7 +793,7 @@
             }
         });
 
-        /********** ADS.TXT CRAWLER SCRIPT **********/
+        /********** ADS.TXT CRAWLER SCRIPT (SINGLE) **********/
         const adsTxtCrawler = {
             fetchButton: document.getElementById('fetchButton'), websiteUrlInput: document.getElementById('websiteUrl'), appAdsToggle: document.getElementById('appAdsToggle'), adsTxtOutput: document.getElementById('adsTxtOutput'), resultContainer: document.getElementById('resultContainer'), summaryContainer: document.getElementById('summaryContainer'), resultTitle: document.getElementById('resultTitle'), sourceLink: document.getElementById('sourceLink'), errorContainer: document.getElementById('errorContainer'), errorMessage: document.getElementById('errorMessage'), loader: document.getElementById('loader'), buttonText: document.getElementById('button-text'), copyButton: document.getElementById('copyButton'), copyNotification: document.getElementById('copyNotification'), resellerStatusContainer: document.getElementById('resellerStatusContainer'), resellerStatusTableBody: document.getElementById('resellerStatusTableBody'), downloadCsvBtn: document.getElementById('downloadCsvBtn'), directNav: document.getElementById('directNav'), resellerNav: document.getElementById('resellerNav'), errorNav: document.getElementById('errorNav'), directNavCounter: document.getElementById('directNavCounter'), resellerNavCounter: document.getElementById('resellerNavCounter'), errorNavCounter: document.getElementById('errorNavCounter'),
             rawAdsTxtContent: '', currentHighlightClass: '', activeNavMode: null, directElements: [], resellerElements: [], errorElements: [], currentIndex: { direct: -1, reseller: -1, error: -1 },
@@ -843,6 +984,227 @@
             document.getElementById(`next${type.charAt(0).toUpperCase() + type.slice(1)}Btn`)?.addEventListener('click', (e) => { e.stopPropagation(); navigateToLine(type, 'next'); });
         });
         document.addEventListener('keydown', e => { if (e.key === 'Enter' && adsTxtCrawler.activeNavMode && document.activeElement !== adsTxtCrawler.websiteUrlInput) { e.preventDefault(); navigateToLine(adsTxtCrawler.activeNavMode, 'next'); } });
+
+        /********** ADS.TXT CRAWLER SCRIPT (BULK) **********/
+        (function() {
+            // --- Element Selection ---
+            const checkButton = document.getElementById('checkButton'),
+                pauseButton = document.getElementById('pauseButton'),
+                resumeButton = document.getElementById('resumeButton'),
+                cancelButton = document.getElementById('cancelButton'),
+                adsLineInput = document.getElementById('adsLineInput'),
+                websitesList = document.getElementById('websitesList'),
+                bulkAppAdsToggle = document.getElementById('bulkAppAdsToggle'),
+                bulkResultsContainer = document.getElementById('bulkResultsContainer'),
+                bulkResultsTableBody = document.getElementById('bulkResultsTableBody'),
+                bulkResultsTitle = document.getElementById('bulkResultsTitle'),
+                bulkErrorContainer = document.getElementById('bulkErrorContainer'),
+                progressContainer = document.getElementById('progressContainer'),
+                progressBar = document.getElementById('progressBar'),
+                progressLabel = document.getElementById('progressLabel'),
+                bulkDownloadCsvBtn = document.getElementById('bulkDownloadCsvBtn');
+
+            // --- State Management ---
+            let state = 'idle'; // idle, running, paused, cancelled, complete
+            let sitesQueue = [];
+            let resultsForCSV = [];
+            const SCAN_DELAY_MS = 1000; // 1-second delay between requests
+
+            /** Resets UI state before a new check. */
+            function resetState() {
+                bulkResultsContainer.classList.add('hidden');
+                bulkErrorContainer.classList.add('hidden');
+                progressContainer.classList.add('hidden');
+                bulkResultsTableBody.innerHTML = '';
+                resultsForCSV = [];
+                sitesQueue = [];
+                state = 'idle';
+                updateUIForState();
+            }
+
+            /** Updates buttons and inputs based on the current state */
+            function updateUIForState() {
+                checkButton.classList.toggle('hidden', state !== 'idle');
+                pauseButton.classList.toggle('hidden', state !== 'running');
+                resumeButton.classList.toggle('hidden', state !== 'paused');
+                cancelButton.classList.toggle('hidden', state === 'idle' || state === 'complete');
+                adsLineInput.disabled = state !== 'idle';
+                websitesList.disabled = state !== 'idle';
+            }
+
+            /** Displays a validation or system error message. */
+            function showError(message) {
+                bulkErrorContainer.textContent = message;
+                bulkErrorContainer.classList.remove('hidden');
+            }
+            
+            /**
+             * Creates a consistent matching key from the first 3 fields of an ads.txt line.
+             * This ignores the optional 4th field (TAG ID) and any comments.
+             * @param {string} line - A single line from an ads.txt file.
+             * @returns {string|null} A normalized string key or null if the line is invalid.
+             */
+            function getMatchKey(line) {
+                // Remove any comments first
+                const withoutComment = line.split('#')[0];
+                const fields = withoutComment.split(',').map(f => f.trim());
+                
+                // A valid data line must have at least 3 fields
+                if (fields.length < 3) {
+                    return null;
+                }
+                
+                // Take the first 3 fields, remove all whitespace, join, and convert to lowercase
+                return fields.slice(0, 3).join(',').replace(/\s/g, '').toLowerCase();
+            }
+
+            /** Creates a delay. */
+            const delay = ms => new Promise(res => setTimeout(res, ms));
+
+            /** Fetches a URL with retry logic. */
+            async function fetchWithRetries(url, retries = 2, backoff = 500) {
+                for (let i = 0; i < retries; i++) {
+                    try {
+                        const response = await fetch(url);
+                        if (response.status === 429 || response.status >= 500) {
+                             throw new Error(`Server error: ${response.status}`);
+                        }
+                        return response;
+                    } catch (error) {
+                        if (i === retries - 1) throw error;
+                        await delay(backoff * Math.pow(2, i));
+                    }
+                }
+            }
+
+            /** Processes a single website check. */
+            async function processSite(site, lineToFindKey) {
+                 try {
+                     const domain = new URL('https://' + site.replace(/^https?:\/\//, '')).hostname;
+                     const fileType = bulkAppAdsToggle.checked ? 'app-ads.txt' : 'ads.txt';
+                     const targetUrl = `https://${domain}/${fileType}`;
+                     const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
+                     
+                     const response = await fetchWithRetries(proxyUrl);
+                     
+                     if (!response.ok) {
+                         if (response.status === 404) {
+                             return { site, status: 'File Does Not Exist (404)', statusClass: 'status-file-missing' };
+                         }
+                         throw new Error(`HTTP error: ${response.status}`);
+                     }
+
+                     const text = await response.text();
+                     // Check if any line in the file matches the 3-field key
+                     const found = text.split('\n').some(line => getMatchKey(line) === lineToFindKey);
+                     
+                     return found
+                         ? { site, status: 'Found', statusClass: 'status-found' }
+                         : { site, status: 'Not Found in File', statusClass: 'status-not-found' };
+
+                 } catch (error) {
+                     console.error(`Error checking ${site}:`, error);
+                     return { site, status: 'Fetch Error', statusClass: 'status-error' };
+                 }
+            }
+
+            /** Main function to run the scanner. */
+            async function runScanner() {
+                const lineToFind = adsLineInput.value.trim();
+                const websites = websitesList.value.split('\n').map(w => w.trim()).filter(w => w);
+
+                if (!lineToFind || websites.length === 0) {
+                    showError('Please provide both an ads.txt line and a list of websites.');
+                    return;
+                }
+                
+                const lineToFindKey = getMatchKey(lineToFind);
+                if (!lineToFindKey) {
+                    showError('The "Line to Find" is not a valid ads.txt entry. It must have at least 3 comma-separated fields.');
+                    return;
+                }
+                
+                resetState();
+                state = 'running';
+                updateUIForState();
+                progressContainer.classList.remove('hidden');
+                bulkResultsContainer.classList.remove('hidden');
+
+                sitesQueue = [...websites];
+                const totalSites = sitesQueue.length;
+                
+                for (let i = 0; i < totalSites; i++) {
+                    // Handle pausing
+                    while (state === 'paused') {
+                        await delay(500); // Check every half second if we should resume
+                    }
+                    // Handle cancellation
+                    if (state === 'cancelled') {
+                        progressLabel.textContent = `Scan cancelled after ${i} checks.`;
+                        break;
+                    }
+
+                    const site = sitesQueue[i];
+                    progressLabel.textContent = `Checking ${i + 1} of ${totalSites}: ${site}...`;
+                    
+                    const result = await processSite(site, lineToFindKey);
+
+                    const row = `<tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${result.site}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm ${result.statusClass}">${result.status}</td>
+                    </tr>`;
+                    bulkResultsTableBody.insertAdjacentHTML('beforeend', row);
+                    resultsForCSV.push({ website: result.site, status: result.status });
+                    
+                    progressBar.style.width = `${((i + 1) / totalSites) * 100}%`;
+                    
+                    // Don't delay after the last item
+                    if (i < totalSites - 1) {
+                        await delay(SCAN_DELAY_MS);
+                    }
+                }
+
+                if (state !== 'cancelled') {
+                    state = 'complete';
+                    progressLabel.textContent = `Scan complete. Checked ${totalSites} websites.`;
+                    bulkResultsTitle.textContent = `Results (${totalSites} sites)`;
+                }
+                updateUIForState();
+            }
+
+            function downloadCSV() {
+                if (resultsForCSV.length === 0) return;
+                let csvContent = '"Website","Status"\n';
+                resultsForCSV.forEach(r => { csvContent += `"${r.website}","${r.status}"\n`; });
+                
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", "bulk_line_check_results.csv");
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            // --- Event Listeners ---
+            checkButton.addEventListener('click', runScanner);
+            pauseButton.addEventListener('click', () => {
+                state = 'paused';
+                updateUIForState();
+                progressLabel.textContent += ' (Paused)';
+            });
+            resumeButton.addEventListener('click', () => {
+                state = 'running';
+                updateUIForState();
+            });
+            cancelButton.addEventListener('click', () => {
+                state = 'cancelled';
+                updateUIForState();
+            });
+            bulkDownloadCsvBtn.addEventListener('click', downloadCSV);
+        })();
     </script>
 </body>
 </html>
