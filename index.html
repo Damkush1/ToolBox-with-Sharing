@@ -455,6 +455,15 @@
             jsonBourne.outputSection.classList.remove('hidden');
             jsonBourne.actions.classList.remove('hidden');
             
+            const shareButton = document.getElementById('share-button');
+            if (jsonBourne.currentOption === 'format' || jsonBourne.currentOption === 'render_ad') {
+                shareButton.disabled = true;
+                shareButton.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                shareButton.disabled = false;
+                shareButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+
             try {
                 switch (jsonBourne.currentOption) {
                     case 'format': formatJson(input); break;
@@ -593,17 +602,21 @@
         jsonBourne.jsonInput.addEventListener('input', debounce(processJsonInput, 500));
 
         function shareResult() {
-            const data = {
-                tool: jsonBourne.currentOption,
-                json: jsonBourne.jsonInput.value
-            };
-            const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(data));
-            const shareUrl = `${window.location.origin}${window.location.pathname}?data=${compressed}`;
-            
-            const modal = document.getElementById('share-modal');
-            const urlInput = document.getElementById('share-url-input');
-            urlInput.value = shareUrl;
-            modal.classList.remove('hidden');
+            let shareUrl = '';
+            if (jsonBourne.currentOption === 'extract_image') {
+                const img = jsonBourne.output.querySelector('img');
+                if (img) shareUrl = img.src;
+            } else if (jsonBourne.currentOption === 'play_video') {
+                const video = jsonBourne.output.querySelector('video');
+                if (video) shareUrl = video.src;
+            }
+
+            if(shareUrl) {
+                const modal = document.getElementById('share-modal');
+                const urlInput = document.getElementById('share-url-input');
+                urlInput.value = shareUrl;
+                modal.classList.remove('hidden');
+            }
         }
 
         document.getElementById('close-share-modal-btn').addEventListener('click', () => {
