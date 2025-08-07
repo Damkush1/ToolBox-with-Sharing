@@ -227,6 +227,83 @@
         <!-- Ads.txt Crawler Section -->
         <section id="ads-txt-crawler" class="tool-section">
              <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+                <!-- Bulk Line Checker -->
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <div class="text-center mb-6">
+                        <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Single Ads.txt Line Checker</h1>
+                        <p class="text-gray-500 mt-2">Check for a single ads.txt line across multiple websites.</p>
+                    </div>
+                    
+                    <!-- Input Section -->
+                    <div class="space-y-6 mb-6">
+                        <div>
+                            <label for="bulk_adsLineInput" class="block text-sm font-medium text-gray-700 mb-1">1. Ads.txt Line to Find</label>
+                            <input type="text" id="bulk_adsLineInput" placeholder="google.com, pub-12345, DIRECT, f08c47fec0942fa0" class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-taboola-blue">
+                        </div>
+                        <div>
+                            <label for="bulk_websitesList" class="block text-sm font-medium text-gray-700 mb-1">2. Websites (one per line)</label>
+                            <textarea id="bulk_websitesList" rows="6" placeholder="example.com&#10;anothersite.org&#10;webaudit.co" class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-taboola-blue"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col items-center justify-center mb-6">
+                         <label for="bulk_appAdsToggle" class="flex items-center cursor-pointer mb-4">
+                            <input type="checkbox" id="bulk_appAdsToggle" class="form-checkbox h-5 w-5 text-taboola-blue rounded focus:ring-taboola-blue">
+                            <span class="ml-2 text-gray-700">Check for app-ads.txt</span>
+                        </label>
+                        <div id="bulk_controls" class="flex items-center gap-4">
+                            <button id="bulk_checkButton" class="bg-taboola-blue text-white font-semibold px-8 py-3 rounded-lg hover:bg-taboola-blue-dark flex items-center justify-center">
+                                <i class="fas fa-play mr-2"></i>Start Scan
+                            </button>
+                            <button id="bulk_pauseButton" class="bg-yellow-500 text-white font-semibold px-8 py-3 rounded-lg hover:bg-yellow-600 hidden items-center justify-center">
+                                <i class="fas fa-pause mr-2"></i>Pause
+                            </button>
+                            <button id="bulk_resumeButton" class="bg-green-500 text-white font-semibold px-8 py-3 rounded-lg hover:bg-green-600 hidden items-center justify-center">
+                                <i class="fas fa-play mr-2"></i>Resume
+                            </button>
+                            <button id="bulk_cancelButton" class="bg-gray-600 text-white font-semibold px-8 py-3 rounded-lg hover:bg-gray-700 hidden items-center justify-center">
+                                <i class="fas fa-stop mr-2"></i>Cancel
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Progress Bar -->
+                    <div id="bulk_progressContainer" class="hidden my-4">
+                        <p id="bulk_progressLabel" class="text-center text-sm text-gray-600 mb-1">Checking...</p>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div id="bulk_progressBar" class="bg-taboola-blue h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Results Section -->
+                    <div id="bulk_resultsContainer" class="hidden mt-8">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 id="bulk_resultsTitle" class="text-2xl font-bold text-gray-800">Results</h2>
+                             <button id="bulk_downloadCsvBtn" class="bg-green-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition text-sm flex items-center">
+                                <i class="fas fa-download mr-2"></i>Download CSV
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto bg-white rounded-lg shadow max-h-96">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50 sticky top-0">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Website</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bulk_resultsTableBody" class="bg-white divide-y divide-gray-200">
+                                    <!-- Results will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Error Message Display -->
+                    <div id="bulk_errorContainer" class="hidden mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg" role="alert"></div>
+                </div>
+
+                <div class="section-separator my-16"></div>
+
                 <!-- Single Site Crawler -->
                 <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-10">
                     <div class="text-center mb-6">
@@ -284,83 +361,6 @@
                         <span id="errorMessage" class="block sm:inline"></span>
                     </div>
                     <div id="copyNotification" class="hidden fixed bottom-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg">Copied to clipboard!</div>
-                </div>
-
-                <div class="section-separator my-16"></div>
-
-                <!-- Bulk Line Checker -->
-                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
-                    <div class="text-center mb-6">
-                        <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Single Ads.txt Line Checker</h1>
-                        <p class="text-gray-500 mt-2">Check for a single ads.txt line across multiple websites.</p>
-                    </div>
-                    
-                    <!-- Input Section -->
-                    <div class="space-y-6 mb-6">
-                        <div>
-                            <label for="adsLineInput" class="block text-sm font-medium text-gray-700 mb-1">1. Ads.txt Line to Find</label>
-                            <input type="text" id="adsLineInput" placeholder="google.com, pub-12345, DIRECT, f08c47fec0942fa0" class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-taboola-blue">
-                        </div>
-                        <div>
-                            <label for="websitesList" class="block text-sm font-medium text-gray-700 mb-1">2. Websites (one per line)</label>
-                            <textarea id="websitesList" rows="6" placeholder="example.com&#10;anothersite.org&#10;webaudit.co" class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-taboola-blue"></textarea>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-col items-center justify-center mb-6">
-                         <label for="bulkAppAdsToggle" class="flex items-center cursor-pointer mb-4">
-                            <input type="checkbox" id="bulkAppAdsToggle" class="form-checkbox h-5 w-5 text-taboola-blue rounded focus:ring-taboola-blue">
-                            <span class="ml-2 text-gray-700">Check for app-ads.txt</span>
-                        </label>
-                        <div id="controls" class="flex items-center gap-4">
-                            <button id="checkButton" class="bg-taboola-blue text-white font-semibold px-8 py-3 rounded-lg hover:bg-taboola-blue-dark flex items-center justify-center">
-                                <i class="fas fa-play mr-2"></i>Start Scan
-                            </button>
-                            <button id="pauseButton" class="bg-yellow-500 text-white font-semibold px-8 py-3 rounded-lg hover:bg-yellow-600 hidden items-center justify-center">
-                                <i class="fas fa-pause mr-2"></i>Pause
-                            </button>
-                            <button id="resumeButton" class="bg-green-500 text-white font-semibold px-8 py-3 rounded-lg hover:bg-green-600 hidden items-center justify-center">
-                                <i class="fas fa-play mr-2"></i>Resume
-                            </button>
-                            <button id="cancelButton" class="bg-gray-600 text-white font-semibold px-8 py-3 rounded-lg hover:bg-gray-700 hidden items-center justify-center">
-                                <i class="fas fa-stop mr-2"></i>Cancel
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Progress Bar -->
-                    <div id="progressContainer" class="hidden my-4">
-                        <p id="progressLabel" class="text-center text-sm text-gray-600 mb-1">Checking...</p>
-                        <div class="w-full bg-gray-200 rounded-full h-2.5">
-                            <div id="progressBar" class="bg-taboola-blue h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
-                        </div>
-                    </div>
-
-                    <!-- Results Section -->
-                    <div id="bulkResultsContainer" class="hidden mt-8">
-                        <div class="flex justify-between items-center mb-4">
-                            <h2 id="bulkResultsTitle" class="text-2xl font-bold text-gray-800">Results</h2>
-                             <button id="bulkDownloadCsvBtn" class="bg-green-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition text-sm flex items-center">
-                                <i class="fas fa-download mr-2"></i>Download CSV
-                            </button>
-                        </div>
-                        <div class="overflow-x-auto bg-white rounded-lg shadow max-h-96">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50 sticky top-0">
-                                    <tr>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Website</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="bulkResultsTableBody" class="bg-white divide-y divide-gray-200">
-                                    <!-- Results will be inserted here -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Error Message Display -->
-                    <div id="bulkErrorContainer" class="hidden mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg" role="alert"></div>
                 </div>
             </div>
         </section>
@@ -988,21 +988,21 @@
         /********** ADS.TXT CRAWLER SCRIPT (BULK) **********/
         (function() {
             // --- Element Selection ---
-            const checkButton = document.getElementById('checkButton'),
-                pauseButton = document.getElementById('pauseButton'),
-                resumeButton = document.getElementById('resumeButton'),
-                cancelButton = document.getElementById('cancelButton'),
-                adsLineInput = document.getElementById('adsLineInput'),
-                websitesList = document.getElementById('websitesList'),
-                bulkAppAdsToggle = document.getElementById('bulkAppAdsToggle'),
-                bulkResultsContainer = document.getElementById('bulkResultsContainer'),
-                bulkResultsTableBody = document.getElementById('bulkResultsTableBody'),
-                bulkResultsTitle = document.getElementById('bulkResultsTitle'),
-                bulkErrorContainer = document.getElementById('bulkErrorContainer'),
-                progressContainer = document.getElementById('progressContainer'),
-                progressBar = document.getElementById('progressBar'),
-                progressLabel = document.getElementById('progressLabel'),
-                bulkDownloadCsvBtn = document.getElementById('bulkDownloadCsvBtn');
+            const checkButton = document.getElementById('bulk_checkButton'),
+                pauseButton = document.getElementById('bulk_pauseButton'),
+                resumeButton = document.getElementById('bulk_resumeButton'),
+                cancelButton = document.getElementById('bulk_cancelButton'),
+                adsLineInput = document.getElementById('bulk_adsLineInput'),
+                websitesList = document.getElementById('bulk_websitesList'),
+                bulkAppAdsToggle = document.getElementById('bulk_appAdsToggle'),
+                bulkResultsContainer = document.getElementById('bulk_resultsContainer'),
+                bulkResultsTableBody = document.getElementById('bulk_resultsTableBody'),
+                bulkResultsTitle = document.getElementById('bulk_resultsTitle'),
+                bulkErrorContainer = document.getElementById('bulk_errorContainer'),
+                progressContainer = document.getElementById('bulk_progressContainer'),
+                progressBar = document.getElementById('bulk_progressBar'),
+                progressLabel = document.getElementById('bulk_progressLabel'),
+                bulkDownloadCsvBtn = document.getElementById('bulk_downloadCsvBtn');
 
             // --- State Management ---
             let state = 'idle'; // idle, running, paused, cancelled, complete
